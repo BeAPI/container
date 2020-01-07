@@ -2,7 +2,7 @@
     "name": "beapi/container",
     "type": "library",
     "description": "",
-    "license": "GPL-3.0+",
+    "license": "GPL-3.0-or-later",
     "minimum-stability": "stable",
     "config": {
         "optimize-autoloader": true,
