@@ -31,7 +31,7 @@
         }
     },
     "scripts": {
-        "cs": "phpcs",
-        "test": "phpunit"
+        "cs": "vendor/bin/phpcs",
+        "test": "vendor/bin/phpunit"
     }
 }
