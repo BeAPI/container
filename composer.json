@@ -4,8 +4,14 @@
     "description": "",
     "license": "GPL-3.0+",
     "minimum-stability": "stable",
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
     "require": {
         "php": ">=7.1",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
+        "phpcompatibility/php-compatibility": "^9.3",
         "psr/container": "^1.0"
     },
     "require-dev": {
@@ -25,6 +31,7 @@
         }
     },
     "scripts": {
+        "cs": "phpcs",
         "test": "phpunit"
     }
 }
