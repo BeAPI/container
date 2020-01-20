@@ -7,92 +7,106 @@ use Beapi\Container\Exception\IdentifierNotFound;
 use Beapi\Container\Exception\OverrideNotAllowed;
 use PHPUnit\Framework\TestCase;
 
-class ContainerTest extends TestCase {
+class ContainerTest extends TestCase
+{
 
-	private $container;
+    private $container;
 
-	public function setUp(): void {
-		$this->container = new Container();
-	}
+    public function setUp(): void
+    {
+        $this->container = new Container();
+    }
 
-	public function test_store_scalar_value() {
+    public function testStoreScalarValue()
+    {
+        $string = 'this is a string';
+        $integer = 42;
+        $boolean = false;
+        $array = ['a string', 42, true];
 
-		$string  = 'this is a string';
-		$integer = 42;
-		$boolean = false;
-		$array   = [ 'a string', 42, true ];
+        $this->container
+            ->set('string', $string)
+            ->set('integer', $integer)
+            ->set('boolean', $boolean)
+            ->set('array', $array);
 
-		$this->container
-			->set( 'string', $string )
-			->set( 'integer', $integer )
-			->set( 'boolean', $boolean )
-			->set( 'array', $array );
+        $this->assertTrue($this->container->has('string'));
+        $this->assertTrue($this->container->has('integer'));
+        $this->assertTrue($this->container->has('boolean'));
+        $this->assertTrue($this->container->has('array'));
 
-		$this->assertTrue( $this->container->has( 'string' ) );
-		$this->assertTrue( $this->container->has( 'integer' ) );
-		$this->assertTrue( $this->container->has( 'boolean' ) );
-		$this->assertTrue( $this->container->has( 'array' ) );
+        $this->assertSame($string, $this->container->get('string'));
+        $this->assertSame($integer, $this->container->get('integer'));
+        $this->assertSame($boolean, $this->container->get('boolean'));
+        $this->assertSame($array, $this->container->get('array'));
+    }
 
-		$this->assertSame( $string, $this->container->get( 'string' ) );
-		$this->assertSame( $integer, $this->container->get( 'integer' ) );
-		$this->assertSame( $boolean, $this->container->get( 'boolean' ) );
-		$this->assertSame( $array, $this->container->get( 'array' ) );
-	}
+    public function testStoreClosure()
+    {
+        $object = new \stdClass();
 
-	public function test_store_closure() {
+        $this->container->set(
+            'closure',
+            function ($container) use ($object) {
+                return $object;
+            }
+        );
 
-		$object = new \stdClass();
+        $this->assertTrue($this->container->has('closure'));
+        $this->assertSame($object, $this->container->get('closure'));
+    }
 
-		$this->container->set( 'closure', function ( $container ) use ( $object ) {
-			return $object;
-		} );
+    public function testReturnSameInstanceForFactory()
+    {
+        $object = new \stdClass();
 
-		$this->assertTrue( $this->container->has( 'closure' ) );
-		$this->assertSame( $object, $this->container->get( 'closure' ) );
-	}
+        $this->container->set(
+            'closure',
+            function ($container) use ($object) {
+                return $object;
+            }
+        );
 
-	public function test_return_same_instance_for_factory() {
+        $this->assertSame($this->container->get('closure'), $this->container->get('closure'));
+    }
 
-		$object = new \stdClass();
+    public function testThrowExceptionForUnknownId()
+    {
+        $this->expectException(IdentifierNotFound::class);
 
-		$this->container->set( 'closure', function ( $container ) use ( $object ) {
-			return $object;
-		} );
+        $this->container->get('unkwown_name');
+    }
 
-		$this->assertSame( $this->container->get( 'closure' ), $this->container->get( 'closure' ) );
-	}
+    public function testThrowExceptionIfValueAlreadyExist()
+    {
+        $this->expectException(OverrideNotAllowed::class);
 
-	public function test_throw_exception_for_unknown_id() {
+        $this->container->set('test', 42);
+        $this->container->set('test', 24);
+    }
 
-		$this->expectException( IdentifierNotFound::class );
+    public function testAllowOverrideForFactory()
+    {
+        $obj1 = new \stdClass();
+        $obj2 = new \stdClass();
 
-		$this->container->get( 'unkwown_name' );
-	}
+        $this->container->set(
+            'test',
+            function ($container) use ($obj1) {
+                return $obj1;
+            }
+        );
 
-	public function test_throw_exception_if_value_already_exist() {
+        $this->assertTrue($this->container->has('test'));
 
-		$this->expectException( OverrideNotAllowed::class );
+        $this->container->set(
+            'test',
+            function ($container) use ($obj2) {
+                return $obj2;
+            }
+        );
 
-		$this->container->set( 'test', 42 );
-		$this->container->set( 'test', 24 );
-	}
-
-	public function test_allow_override_for_factory() {
-
-		$obj1 = new \stdClass();
-		$obj2 = new \stdClass();
-
-		$this->container->set( 'test', function ( $container ) use ( $obj1 ) {
-			return $obj1;
-		} );
-
-		$this->assertTrue( $this->container->has( 'test' ) );
-
-		$this->container->set( 'test', function ( $container ) use ( $obj2 ) {
-			return $obj2;
-		} );
-
-		$this->assertTrue( $this->container->has( 'test' ) );
-		$this->assertSame( $obj2, $this->container->get( 'test' ) );
-	}
+        $this->assertTrue($this->container->has('test'));
+        $this->assertSame($obj2, $this->container->get('test'));
+    }
 }
