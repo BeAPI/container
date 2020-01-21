@@ -15,10 +15,7 @@ jobs:
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress --no-suggest
-      
-    - name: Add phpunit
-      run: curl -L https://phar.phpunit.de/phpunit.phar -o /usr/local/bin/phpunit && chmod +x /usr/local/bin/phpunit
-      
+            
     - name: Check coding standards
       run: composer test
       
