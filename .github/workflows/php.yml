@@ -17,7 +17,7 @@ jobs:
       run: composer install --prefer-dist --no-progress --no-suggest
             
     - name: Check coding standards
-      run: composer test
+      run: composer cs
       
     - name: Launch tests
-      run: composer cs
+      run: composer test
